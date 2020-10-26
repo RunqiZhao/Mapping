@@ -61,27 +61,3 @@ plot_usmap(data = dt, values = "rainfall", color = "grey", include = dt$fips) +
     theme(legend.position = "right")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-eq_transformed <- usmap_transform(earthquakes)
-
-plot_usmap("counties") +
-  geom_point(data = eq_transformed, aes(x = lon.1, y = lat.1, size = mag),
-             color = "red", alpha = 0.25) +
-  labs(title = "US Earthquakes",
-       subtitle = "Source: USGS, Jan 1 to Jun 30 2019",
-       size = "Magnitude") +
-  theme(legend.position = "right")

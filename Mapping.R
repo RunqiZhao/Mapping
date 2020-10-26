@@ -2,9 +2,7 @@ library(tidyverse)
 library(drat)
 library(hurricaneexposuredata)
 library(hurricaneexposure)
-
-addRepo("geanders")
-
+library(ggplot)
 addRepo("geanders")
 
 
@@ -35,15 +33,15 @@ map_rain_exposure(storm ="Allison-2001",
 
 
 library(dplyr)
-Floyd99 <- filter(rain,storm_id == "Floyd-1999")
-dt_rain <- group_by(Floyd99, fips)
-dt <- summarise(dt_rain,sum_rain = sum(precip))
-dt <- as.data.frame(dt)
-dt$rainfall <- NA
+rain_99 <- filter(rain,storm_id == "Floyd-1999")
+rain_99 <- group_by(rain_99, fips)
+rain_99 <- summarise(rain_99,sum_rain = sum(precip))
+rain_99 <- as.data.frame(rain_99)
+rain_99$rainfall <- NA
 for (i in 1:dim(dt)[1]){
-  dt$rainfall[i] <- dt$sum_rain[i]%/%25
+  rain_99$rainfall[i] <- rain_99$sum_rain[i]%/%25
 }
-dt$rainfall <- ordered(dt$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
+rain_99$rainfall <- ordered(rain_99$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
 
 
 
@@ -57,7 +55,8 @@ plot_usmap(data = dt, values = "rainfall", color = "grey", include = dt$fips) +
   # scale_fill_continuous(
   #   low = "white", high = "lightblue", name = "Rainfall(mm)", label = scales::comma) + 
     labs(title = "Floyd-1999") +
-    theme(plot.title = element_text(hjust = 0.5)) +
-    theme(legend.position = "right")
+    theme(plot.title = element_text(hjust = 0.5), size = 2) +
+    theme(legend.position = "right") +
+    geom_line(data = )
 
 

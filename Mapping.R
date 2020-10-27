@@ -2,22 +2,75 @@ library(tidyverse)
 library(drat)
 library(hurricaneexposuredata)
 library(hurricaneexposure)
-library(ggplot)
+library(ggplot2)
 addRepo("geanders")
-
-
 data("hurr_tracks")
-
 data("rain")
-
 head(hurr_tracks)
-
 head(rain)
 
-# tracking and rainfall but no data information
-map_counties(storm = "Floyd-1999", metric = "rainfall") +
-  ggtitle("Floyd-1999") +
-  theme(plot.title = element_text(hjust = 0.5))
+# # tracking and rainfall but no data information
+# map_counties(storm = "Floyd-1999", metric = "rainfall") +
+#   ggtitle("Floyd-1999") +
+#   theme(plot.title = element_text(hjust = 0.5))
+
+######################################################################
+# usmap plot-1 Floyd-1999
+
+library(dplyr)
+rain_99 <- filter(rain,storm_id == "Floyd-1999")
+rain_99 <- group_by(rain_99, fips)
+rain_99 <- summarise(rain_99,sum_rain = sum(precip))
+rain_99 <- as.data.frame(rain_99)
+rain_99$rainfall <- NA
+for (i in 1:dim(rain_99)[1]){
+  rain_99$rainfall[i] <- rain_99$sum_rain[i]%/%25
+}
+rain_99$rainfall <- ordered(rain_99$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
+
+library(lubridate)
+line_99 <- filter(hurr_tracks, storm_id == "Floyd-1999")
+line_99 <-  separate(line_99, storm_id,c("id","year"),"-")
+line_99$date <-  ymd_hm(line_99$date)
+line_99 <- line_99[23:45,]
+library(rgdal)
+dt <- select(line_99,longitude, latitude)
+data <- data.frame(
+  lon = dt$longitude,
+  lat = dt$latitude
+)
+dt <- usmap_transform(data)
+
+library(maps) 
+
+
+region <-  fips_info(rain_99$fips)
+MainStates <- map_data("state",region = region$full)
+
+MainStates <- data.frame(
+  lon = MainStates$long,
+  lat = MainStates$lat,
+  group = MainStates$group,
+  order = MainStates$order,
+  region = MainStates$region
+)
+MainStates <- usmap_transform(MainStates)
+
+
+library(usmap)
+# plot_usmap("state") +
+plot_usmap(data = rain_99, values = "rainfall", color = "grey", include = rain_99$fips) +
+  geom_polygon( data=MainStates, aes(x=lon.1, y=lat.1, group=group),
+                color="black",  size = 1, alpha = 0) +
+  scale_fill_brewer(palette = "Blues", name = "Rainfall(mm)") +
+  labs(title = "Floyd-1999") +
+  theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5)) +
+  theme(legend.position = "right")+
+  geom_path(data = dt, aes(x = lon.1, y = lat.1),
+            color = "red", size = 1)
+
+#####################################################################################
+# usmap plot-2 Allison-2001
 
 map_rain_exposure(storm ="Allison-2001", 
                   rain_limit = 175, 
@@ -26,37 +79,46 @@ map_rain_exposure(storm ="Allison-2001",
   ggtitle("Allison-2001") +
   theme(plot.title = element_text(hjust = 0.5))
 
+rain_01 <- filter(rain,storm_id == "Allison-2001")
+rain_01 <- group_by(rain_01, fips)
+rain_01 <- summarise(rain_01,sum_rain = sum(precip))
+rain_01 <- as.data.frame(rain_01)
+rain_01$rainfall <- NA
 
-## colors
-## http://sape.inf.usi.ch/quick-reference/ggplot2/colour
-
-
-
-library(dplyr)
-rain_99 <- filter(rain,storm_id == "Floyd-1999")
-rain_99 <- group_by(rain_99, fips)
-rain_99 <- summarise(rain_99,sum_rain = sum(precip))
-rain_99 <- as.data.frame(rain_99)
-rain_99$rainfall <- NA
-for (i in 1:dim(dt)[1]){
-  rain_99$rainfall[i] <- rain_99$sum_rain[i]%/%25
+for (i in 1:dim(rain_01)[1]){
+  rain_01$rainfall[i] <- rain_01$sum_rain[i]%/%25
 }
-rain_99$rainfall <- ordered(rain_99$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
+rain_01$rainfall <- ordered(rain_01$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
 
 
 
-library(usmap)
-library(ggplot2)
 
-# plot_usmap("state") +
-plot_usmap(data = dt, values = "rainfall", color = "grey", include = dt$fips) + 
-   scale_fill_brewer(palette = "Blues", name = "Rainfall(mm)") +
-# scale_fill_hue(h = c(0, 360) + 15, c = 20, l = 65, name = "Rainfall(mm)")+
-  # scale_fill_continuous(
-  #   low = "white", high = "lightblue", name = "Rainfall(mm)", label = scales::comma) + 
-    labs(title = "Floyd-1999") +
-    theme(plot.title = element_text(hjust = 0.5), size = 2) +
-    theme(legend.position = "right") +
-    geom_line(data = )
+
+
+
+
+
+
+
+#################################################################
+## ggplot with maps library
+###################################################
+
+########################################################
+
+
+AllCounty <- map_data("county")
+ggplot() + geom_polygon( data=AllCounty, aes(x=long, y=lat, group=group),
+                         color="darkblue", fill="lightblue", size = .1 ) +
+  
+  geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
+                color="black", fill="lightblue",  size = 1, alpha = .3)
+
+###################################################
+
+
+
+
+
 
 

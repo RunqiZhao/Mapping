@@ -88,36 +88,7 @@ rain_01$rainfall <- NA
 for (i in 1:dim(rain_01)[1]){
   rain_01$rainfall[i] <- rain_01$sum_rain[i]%/%25
 }
-rain_01$rainfall <- ordered(rain_01$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
-
-
-
-
-
-
-
-
-
-
-
-#################################################################
-## ggplot with maps library
-###################################################
-
-########################################################
-
-
-AllCounty <- map_data("county")
-ggplot() + geom_polygon( data=AllCounty, aes(x=long, y=lat, group=group),
-                         color="darkblue", fill="lightblue", size = .1 ) +
-  
-  geom_polygon( data=MainStates, aes(x=long, y=lat, group=group),
-                color="black", fill="lightblue",  size = 1, alpha = .3)
-
-###################################################
-
-
-
+# rain_01$rainfall <- ordered(rain_01$rainfall,labels = c("[0.25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
 
 
 

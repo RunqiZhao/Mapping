@@ -50,6 +50,7 @@ data <- data.frame(
   lat = dt$latitude
 )
 dt <- usmap_transform(data)
+dt99 <- dt
 
 library(maps) 
 
@@ -119,6 +120,7 @@ data <- data.frame(
   lat = dt$latitude
 )
 dt <- usmap_transform(data)
+dt01 <- dt
 
 region <-  fips_info(rain_01$fips)
 MainStates <- map_data("state",region = region$full)
@@ -146,37 +148,62 @@ p21
 #################################################################################
 # tmap plot-12 Floyd-1999
 
-# library(tmap) 
-# library(tmaptools)
-# 
-# library(sf)
-# library(raster)
-# 
-# library(spData)
+library("tmap") 
+library("tmaptools")
 
-library(leaflet) 
+library(leaflet)
+library(geojsonio)
+library(htmlwidgets)
+library(htmltools)
 
-dns <- "gadm36_USA_shp" 
-fn <- list.files(dns, pattern=".shp", full.names=FALSE) 
-fn <- gsub(".shp", "", fn) 
-shape <- readOGR(dns, "gadm36_USA_2") 
+factpal <- colorFactor("RdPu", rain_99$rainfall)
 
-# rain data
-rain_99$cty <- region$county
-rain_99 <- separate(rain_99,cty,c("county","ct"),sep = " County")
-# merge data
-shape <- merge(shape, rain_99, by.x="NAME_2", by.y="county",duplicateGeoms = TRUE) 
+mapCounty = map("county", region = region$full, fill = TRUE, plot = FALSE)
 
-bins <- c(0, 25, 50, 75, 100, 125, 150, 175, 200, 250)
-pal <- colorBin("YlGnBu", domain = shape$sum_rain, bins = bins) 
+p12 <- leaflet(data = rain_99) %>% 
+  addProviderTiles("CartoDB.Positron") %>%
+  addProviderTiles(providers$Stamen.TonerLines,
+                   options = providerTileOptions(opacity = 0.75)) %>%
+  setView(-89.275673, 37.098, zoom = 4) %>%
+  addPolygons(data = mapCounty,
+              color = ~factpal(rain_99$rainfall), 
+              fillOpacity  = 0.5, 
+              smoothFactor = 0.1,
+              weight = 1,
+              stroke = FALSE) %>%
+  addPolylines(data = dt99,~lon, ~lat, 
+               color="darkturquoise",
+               weight = 1.5)%>%
+  addLegend(pal = factpal,
+            values = rain_99$rainfall,
+            position="bottomright",
+            title = "Rainfall")
 
-# mapping
-m <- leaflet(shape) %>% addTiles() %>% setView(-89, 37.597042, zoom = 4) 
+#################################################################################
+## Allison-2001
+dt01 <- dt
 
-m %>% 
-  addPolygons(fillColor = ~pal(shape$sum_rain), 
-              weight = 2,
-              opacity = 1,
-              color = "grey",
-              dashArray = "3",
-              fillOpacity = 0.7) 
+pal <- colorFactor("RdPu", rain_01$rainfall)
+
+mapCounty = map("county", region = region$full, fill = TRUE, plot = FALSE)
+
+p22<- leaflet(data = rain_01) %>% 
+  addProviderTiles("CartoDB.Positron") %>%
+  addProviderTiles(providers$Stamen.TonerLines,
+                   options = providerTileOptions(opacity = 0.75)) %>%
+  setView(-89.275673, 37.098, zoom = 4) %>%
+  addPolygons(data = mapCounty,
+              color = ~pal(rain_01$rainfall), 
+              fillOpacity  = 0.5, 
+              smoothFactor = 0.1,
+              weight = 1,
+              stroke = FALSE) %>%
+  addPolylines(data = dt01,~lon, ~lat, 
+               color="darkturquoise",
+               weight = 1.5)%>%
+  addLegend(pal = pal,
+            values = rain_01$rainfall,
+            position="bottomright",
+            title = "Rainfall")
+p12
+p22

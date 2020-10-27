@@ -1,4 +1,7 @@
-
+# install.packages("sf")
+# install.packages("raster")
+# install.packages("spData")
+# remotes::install_github("Nowosad/spDataLarge")
 
 
 ## install.packages("rgdal")
@@ -143,7 +146,37 @@ p21
 #################################################################################
 # tmap plot-12 Floyd-1999
 
-library("tmap") 
-library("tmaptools")
+# library(tmap) 
+# library(tmaptools)
+# 
+# library(sf)
+# library(raster)
+# 
+# library(spData)
 
+library(leaflet) 
 
+dns <- "gadm36_USA_shp" 
+fn <- list.files(dns, pattern=".shp", full.names=FALSE) 
+fn <- gsub(".shp", "", fn) 
+shape <- readOGR(dns, "gadm36_USA_2") 
+
+# rain data
+rain_99$cty <- region$county
+rain_99 <- separate(rain_99,cty,c("county","ct"),sep = " County")
+# merge data
+shape <- merge(shape, rain_99, by.x="NAME_2", by.y="county",duplicateGeoms = TRUE) 
+
+bins <- c(0, 25, 50, 75, 100, 125, 150, 175, 200, 250)
+pal <- colorBin("YlGnBu", domain = shape$sum_rain, bins = bins) 
+
+# mapping
+m <- leaflet(shape) %>% addTiles() %>% setView(-89, 37.597042, zoom = 4) 
+
+m %>% 
+  addPolygons(fillColor = ~pal(shape$sum_rain), 
+              weight = 2,
+              opacity = 1,
+              color = "grey",
+              dashArray = "3",
+              fillOpacity = 0.7) 

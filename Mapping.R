@@ -263,25 +263,49 @@ pal <- colorFactor("RdPu", rain_01$rainfall)
 i_popup2 <- paste0("<strong>county: </strong>", shape2$NAME_2, "<br>", "<strong>rainfall: </strong>", shape2$rainfall) 
 
 # plot p22
-p22<- leaflet(data = rain_01) %>%
-      addProviderTiles("CartoDB.Positron") %>%
-      addProviderTiles(providers$Stamen.TonerLines,
-                        options = providerTileOptions(opacity = 0.75)) %>%
-      setView(-89.275673, 37.098, zoom = 4) %>%
-      addPolygons(data = shape2,
-                  color = ~pal(shape2$rainfall),
-                  fillOpacity  = 0.5,
-                  smoothFactor = 0.1,
-                  weight = 1,
-                  # stroke = FALSE
-                  popup = i_popup2) %>%
-      addPolylines(data = dt01, ~lon, ~lat,
-                    color="darkturquoise",
-                    weight = 1.5)%>%
-      addLegend(pal = pal,
-                values = shape2$rainfall,
-                position="bottomright",
-                title = "Rainfall")
+# p22<- leaflet(data = rain_01) %>%
+#       addProviderTiles("CartoDB.Positron") %>%
+#       addProviderTiles(providers$Stamen.TonerLines,
+#                         options = providerTileOptions(opacity = 0.75)) %>%
+#       setView(-89.275673, 37.098, zoom = 4) %>%
+#       addPolygons(data = shape2,
+#                   color = ~pal(shape2$rainfall),
+#                   fillOpacity  = 0.5,
+#                   smoothFactor = 0.1,
+#                   weight = 1,
+#                   # stroke = FALSE
+#                   popup = i_popup2) %>%
+#       addPolylines(data = dt01, ~lon, ~lat,
+#                     color="darkturquoise",
+#                     weight = 1.5)%>%
+#       addLegend(pal = pal,
+#                 values = shape2$rainfall,
+#                 position="bottomright",
+#                 title = "Rainfall")
+# 
+# p22
+
+pal <- colorFactor("RdPu", rain_01$rainfall)
+
+mapCounty = map("county", region = region$full, fill = TRUE, plot = FALSE)
+
+p22<- leaflet(data = rain_01) %>% 
+  addProviderTiles("CartoDB.Positron") %>%
+  addProviderTiles(providers$Stamen.TonerLines,
+                   options = providerTileOptions(opacity = 0.75)) %>%
+  setView(-89.275673, 37.098, zoom = 4) %>%
+  addPolygons(data = mapCounty,
+              color = ~pal(rain_01$rainfall), 
+              fillOpacity  = 0.5, 
+              smoothFactor = 0.1,
+              weight = 1,
+              stroke = FALSE) %>%
+  addPolylines(data = dt01,~lon, ~lat, 
+               color="darkturquoise",
+               weight = 1.5)%>%
+  addLegend(pal = pal,
+            values = rain_01$rainfall,
+            position="bottomright",
+            title = "Rainfall")
 
 p22
-

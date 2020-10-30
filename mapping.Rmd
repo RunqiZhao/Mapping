@@ -32,6 +32,7 @@ data("rain")
  # head(rain)
 ```
 ## Example plot of Floyd-1999 and Alison-2001
+### These are the 2 target maps that are created with the "hurricaneexposure" package. 
 ```{r echo=FALSE, warning = FALSE, message = FALSE}
 
 p1 <- map_counties(storm = "Floyd-1999", metric = "rainfall") +
@@ -62,6 +63,8 @@ for (i in 1:dim(rain_99)[1]){
   rain_99$rainfall[i] <- rain_99$sum_rain[i]%/%25
 }
 rain_99$rainfall <- ordered(rain_99$rainfall,labels = c("[0,25]","(25,50]","(50,75]", "(75,100)","(100,125]","(125,150]","(150,175]","(175,200)","(200,222]"))
+# Could also try: rain_99$rainfall <- cut(rain_99$rainfall, breaks = c(0, 25, 50, 75,
+# 100, 125, 150, 175, 200, 225), include.lowest = TRUE)) 
 
 # line data for Floyd-1999
 line_99 <- filter(hurr_tracks, storm_id == "Floyd-1999")
@@ -156,7 +159,10 @@ region01 <- region
 p21 <- plot_usmap(data = rain_01, values = "rainfall", color = "grey", include = rain_01$fips) +
   geom_polygon( data=MainStates, aes(x=lon.1, y=lat.1, group=group),
                 color="black",  size = 0.05, alpha = 0) +
-  scale_fill_brewer(palette = "Blues", name = "Rainfall > 175mm") +
+  # scale_fill_brewer(palette = "Blues", name = "Rainfall > 175mm") +
+  # Use the scale_fill_manual function could make this map more similar to the target
+  # map and also makes the two colors more distinguishable. 
+  scale_fill_manual(values = c("white", "darkblue"), name = "Rainfall > 175mm") + 
   labs(title = "Allison-2001") +
   theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5)) +
   theme(legend.position = "right")+
@@ -211,7 +217,10 @@ shape@data <- data3
 
 # plot p12
 
-factpal <- colorFactor("RdPu", shape$rainfall)
+# We changed the color of the leaflet maps from "RdPu" to "Blues" to make them 
+# more identical to the target maps. Just to clarify, the original maps your team 
+# made are perfect, we just would like to try out another color! 
+factpal <- colorFactor("Blues", shape$rainfall)
 i_popup <- paste0("<strong>county: </strong>", shape$NAME_2, "<br>", "<strong>rainfall: </strong>", shape$rainfall) 
 p12 <- leaflet(data = rain_99) %>% 
   addProviderTiles("CartoDB.Positron") %>%
@@ -241,7 +250,7 @@ p12
 
 ## Allison-2001
 
-pal <- colorFactor("RdPu", rain_01$rainfall)
+pal <- colorFactor("Blues", rain_01$rainfall)
 
 mapCounty = map("county", region = region$full, fill = TRUE, plot = FALSE)
 
